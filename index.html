@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Game</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+    canvas { display: block; margin: auto; background: #444; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let car = { x: 175, y: 500, width: 50, height: 100, speed: 5 };
+    let obstacles = [];
+    let score = 0;
+
+    function drawCar() {
+      ctx.fillStyle = "red";
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
+
+    function drawObstacles() {
+      ctx.fillStyle = "yellow";
+      for (let obs of obstacles) {
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      }
+    }
+
+    function updateObstacles() {
+      for (let obs of obstacles) {
+        obs.y += 4;
+      }
+      if (Math.random() < 0.02) {
+        obstacles.push({
+          x: Math.random() * 350,
+          y: -50,
+          width: 50,
+          height: 50
+        });
+      }
+      obstacles = obstacles.filter(o => o.y < 600);
+    }
+
+    function checkCollision() {
+      for (let obs of obstacles) {
+        if (
+          car.x < obs.x + obs.width &&
+          car.x + car.width > obs.x &&
+          car.y < obs.y + obs.height &&
+          car.height + car.y > obs.y
+        ) {
+          alert("Game Over! Score: " + score);
+          document.location.reload();
+        }
+      }
+    }
+
+    function drawScore() {
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 10, 20);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar();
+      drawObstacles();
+      updateObstacles();
+      checkCollision();
+      drawScore();
+      score++;
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && car.x > 0) car.x -= car.speed;
+      if (e.key === "ArrowRight" && car.x < canvas.width - car.width) car.x += car.speed;
+    });
+
+    gameLoop();
+  </script>
+</body>
+</html>
